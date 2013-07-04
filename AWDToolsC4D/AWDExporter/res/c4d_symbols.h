@@ -1,0 +1,119 @@
+// C4D-Plugin Symbols
+
+enum
+{
+    //global
+    STR_TITLE                       = 10000,
+    STR_NONEFOUND                   = 10010,
+    STR_ASKCLOSE                    = 10020,
+    
+    TABGRP_MAIN                     = 10025,
+    TABGRP_GENERAL                  = 10026,
+    TABGRP_MATERIALS                = 10027,
+    TABGRP_ANIMATIONS               = 10028,
+    
+
+	MENU_ABOUT                      = 20200,
+	MENU_ABOUT_HELP                 = 20201,
+	MENU_ABOUT_ABOUT                = 20202,
+    MENU_ABOUT_HELP_DIALOG                = 20203,
+    MENU_ABOUT_ABOUT_DIALOG                 = 20204,
+    MENU_CHECKFORUPDATE                = 20205,
+	
+    
+
+    // maindialog
+    MAINDIALOG                      = 20000,
+    MAINDIALOG_STR,    
+		
+	GRP_TEXTURES					=	35007,
+		
+	
+	BTN_EXPORT						= 40000,
+	BTN_CANCEL						= 40001,
+    BTN_SAVEWITHASSETS						= 40002,
+    BTN_CHECKSKELETON						= 40003,
+    BTN_CHECKPOLY						= 40004,
+    BTN_CREATESKELETONANIMATION			= 40008,
+    BTN_RECORDVERTEXANIMATION			= 40009,
+
+	
+	CBOX_UNUSEDMATS					    = 41002,
+	CBOX_CLOSEAFTEREXPORT				= 41008,
+	CBOX_COMPRESSED						= 41013,
+	CBOX_ANIMATION						= 41014,
+	CBOX_VANIMATION						= 41015,
+	CBOX_STREAMING				        = 41037,
+	CBOX_DEBUG				            = 41038,
+    CBOX_EXPORTLIGHTXML                 = 41017,
+	
+    CBOX_LIGHTMATERIALS				    = 41039,
+    CBOX_UNSUPPORTETTEX				    = 41041,
+    CBOX_OPENPREFAB        			    = 41016,
+
+    MAINDIALOG_USERAREA				    = 41040,
+	
+	COMBO_TEXTURESMODE  				= 42005,
+	COMBO_TEXTURESMODE_STR 				= 42006,
+	COMBOITEM_EMBED= 42007,
+	COMBOITEM_EXTERNPATH= 42009,
+
+	LINK_EXTERNTEXTURESPATH				= 52010,
+	LINK_EXTERNTEXTURESPATH_STR 		= 52011,
+	
+	COMBO_RANGE							= 42010,
+	COMBO_RANGE_STR						= 42014,
+	COMBO_RANGE_DOC    					= 42011,
+	COMBO_RANGE_PREVIEW   				= 42013,
+	COMBO_RANGE_CUSTOM    				= 42012,
+	
+	REAL_SCALE							= 44000,
+	REAL_SCALE_STR						= 44001,
+	REAL_FIRSTFRAME						= 44002,
+	REAL_FIRSTFRAME_STR					= 44003,
+	REAL_LASTFRAME						= 44004,
+	REAL_LASTFRAME_STR					= 44005,
+    
+	ERRORMESSAGEOBJ						= 42999,
+	ERRORMESSAGE						= 43000,
+	ERRORMESSAGE1 						= 43001,
+	ERRORMESSAGE2 						= 43002,
+	ERRORMESSAGE3 						= 43003,
+	ERRORMESSAGE4                       = 43004,
+	ERRORMESSAGE5                       = 43005,
+	ERRORMESSAGE6                       = 43006,
+	ERRORMESSAGE7                       = 43007,
+	ERRORMESSAGE8                       = 43008,
+	ERRORMESSAGE9                       = 43009,
+	ERRORMESSAGE10                      = 43010,
+	ERRORMESSAGE11                      = 43011,
+	
+	
+	SUCCESSMESSAGE 						= 43100,
+		
+	WARNINGMESSAGE						= 43200,
+	WARNINGMESSAGE1 					= 43201,
+	WARNINGMESSAGE2 					= 43202,
+	WARNINGMESSAGE3 					= 43203,
+	
+	STATUSMESSAGE 						= 43500,
+	STATUSMESSAGE1 						= 43501,
+	STATUSMESSAGE2 						= 43502,
+	STATUSMESSAGE3 						= 43503,
+	STATUSMESSAGE4 						= 43504,
+	STATUSMESSAGE5 						= 43505,
+	STATUSMESSAGE6 						= 43506,
+	STRING_80PRO					= 43507,
+
+
+	
+	STATUS_STR							= 45005,
+	STATUS1_STR							= 45006,
+	STATUS2_STR							= 45007,
+	STATUS3_STR							= 45008,
+	STATUS4_STR							= 45009,
+	
+
+// End of symbol definition
+  _DUMMY_ELEMENT_
+};

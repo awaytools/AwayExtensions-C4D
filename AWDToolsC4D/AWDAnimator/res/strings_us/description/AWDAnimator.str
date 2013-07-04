@@ -1,0 +1,14 @@
+STRINGTABLE AWDAnimator
+{
+    AWDAnimator    "AWDAnimator";
+
+    ANIMATOR_EXPORT     "Export Animator";
+    ANIMATOR_NAME       "Animator Name";
+    LINK_TARGETOBJ      "AnimationSet";
+    LINK_TARGETSTATE    "Active Animation";
+    LINK_SKELETON       "Skeleton";
+    CBOX_AUTOPLAY       "AutoPlay";
+	REAL_STARTTIME_STR  "Start-Time";
+    BTN_SETSTARTTIME    "Set Start-Time";
+
+}

@@ -1,0 +1,13 @@
+// C4D-StringResource
+
+STRINGTABLE
+{
+    STR_TITLE                   "AWDImporter";
+    MAINDIALOG_ASKCLOSE_STR     "Do you really want to close the AWDImporter ?";   
+	MENU_PRESET      				"Presets";
+    MENU_PRESET_LOAD        		"Load";
+    MENU_PRESET_SAVE        		"Save";
+    MENU_ABOUT        				"?";
+    MENU_ABOUT_HELP        			"Help";
+    MENU_ABOUT_ABOUT       			"About";
+}

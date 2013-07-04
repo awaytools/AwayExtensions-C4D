@@ -1,0 +1,22 @@
+CONTAINER AWDAnimator
+{
+    NAME AWDAnimator;
+
+    GROUP 
+    {  
+        BOOL ANIMATOR_EXPORT{}
+        STRING ANIMATOR_NAME {}
+        LINK LINK_TARGETOBJ{}
+        LINK LINK_TARGETSTATE{}
+        LINK LINK_SKELETON{}
+        BOOL CBOX_AUTOPLAY{}
+	    GROUP
+		{
+			COLUMNS 2;
+			STATICTEXT REAL_STARTTIME_STR { }
+			REAL REAL_STARTTIME { }				
+		}  
+        BUTTON BTN_SETSTARTTIME{}  
+	}
+
+}

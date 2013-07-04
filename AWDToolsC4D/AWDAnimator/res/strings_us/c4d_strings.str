@@ -1,0 +1,16 @@
+// C4D-StringResource
+// Identifier    Text
+
+STRINGTABLE
+{
+  IDS_AWDSKELETONANIMATIONTAG "AWD Vertex Animation Tag";
+  
+    ANIMATOR_EXPORT     "Export Animator";
+    ANIMATOR_NAME       "Animator Name";
+    LINK_TARGETOBJ      "AnimationSet";
+    LINK_TARGETSTATE    "Active Animation";
+    CBOX_AUTOPLAY       "AutoPlay";
+	REAL_STARTTIME_STR  "Start-Time";
+    BTN_SETSTARTTIME    "Set Start-Time";
+
+}
