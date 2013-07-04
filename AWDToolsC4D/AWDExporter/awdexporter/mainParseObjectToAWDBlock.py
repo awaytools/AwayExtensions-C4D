@@ -280,8 +280,9 @@ def createSceneBlock(exportData,curObj,tagForExport,returner=True,onlyNullObject
             meshInstanceID=int(curObj.GetName())
             newAWDBlockGEO=classesAWDBlocks.TriangleGeometrieBlock(exportData.idCounter,0,curObj)
             
-            newAWDWrapperBlock=classesAWDBlocks.WrapperBlock(curObj,str(curObj.GetName())+"_geom",11)
+            newAWDWrapperBlock=classesAWDBlocks.WrapperBlock(curObj,str(exportData.allAWDBlocks[int(curObj.GetName())].name)+"_geom",11)
             newAWDWrapperBlock.tagForExport=tagForExport
+            newAWDBlockGEO.saveLookUpName=newAWDWrapperBlock.name
             newAWDWrapperBlock.data=newAWDBlockGEO
             exportData.allAWDBlocks.append(newAWDWrapperBlock) 
             exportData.allMeshObjects.append(newAWDWrapperBlock)

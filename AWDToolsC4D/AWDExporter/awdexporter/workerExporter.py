@@ -66,7 +66,11 @@ def startWorkerExport(exportData,workerthreat):
     for block in exportData.allAWDBlocks: 
         if block.targetObject is not None:
             block.targetObject.SetName(str(block.name))
-		
+    
+    for block in exportData.allSceneObjects:
+        if block.data.sceneObject is not None:
+            block.data.sceneObject.SetName(str(block.name))
+        
 		
     #print "export = "+str(exportData.allMeshObjects)
     #c4d.gui.MessageDialog("jnJK")
