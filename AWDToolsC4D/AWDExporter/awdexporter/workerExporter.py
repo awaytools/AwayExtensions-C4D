@@ -20,13 +20,13 @@ from awdexporter import mainMaterials
 # wirtes the file to harddisc
 def startWorkerExport(exportData,workerthreat):
   
+    for oneObj in exportData.doc.GetObjects():
+        mainLightRouting.readAllLightRouting(oneObj,exportData)   
+    workerHelpers.applymaterialsToPrimitives(exportData)
     workerHelpers.connectInstances(exportData)
     
     if workerthreat.TestBreak():
-        return      
-        
-    #for oneObj in exportData.doc.GetObjects():
-    #    mainLightRouting.readAllLightRouting(oneObj,exportData)   
+        return              
         
     workerHelpers.getAllObjectData(exportData)
     
@@ -45,8 +45,6 @@ def startWorkerExport(exportData,workerthreat):
                 
     if workerthreat.TestBreak():
         return          
-    if exportData.exportLightXML==True:
-        mainLightRouting.saveLightXML(exportData)
     exportData.status=3    
     
     
@@ -68,6 +66,7 @@ def startWorkerExport(exportData,workerthreat):
             block.targetObject.SetName(str(block.name))
     
     for block in exportData.allSceneObjects:
+        print "NAME = "+block.data.name
         if block.data.sceneObject is not None:
             block.data.sceneObject.SetName(str(block.name))
         

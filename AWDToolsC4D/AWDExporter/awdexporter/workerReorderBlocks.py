@@ -8,8 +8,7 @@ import os
 import zlib
 from awdexporter import ids
 from awdexporter import classesHelper
-
-
+from awdexporter import mainMaterials
 
                         
 def addToExportList(exportData,awdBlock):
@@ -53,8 +52,23 @@ def addToExportList(exportData,awdBlock):
                     
             if awdBlock.blockType==42:#camera
                 parentBlock=exportData.allAWDBlocks[int(awdBlock.data.dataParentBlockID)]
-                  
+                
+            if awdBlock.blockType==51:#lightPicker
+                exportData.lightPickerCounter+=1
+                awdBlock.data.name+=str(exportData.lightPickerCounter)
+                for light in awdBlock.data.lightList:
+                    lightID=addToExportList(exportData,exportData.allAWDBlocks[int(light)])
+                    awdBlock.data.saveLightList.append(lightID)
+                
             if awdBlock.blockType==81:#material
+                
+                lightPickerBlock=exportData.allAWDBlocks[int(awdBlock.data.lightPicker)]
+                if lightPickerBlock is not None:
+                    awdBlock.data.saveMatProps.append(22)
+                    awdBlock.data.lightPickerID=addToExportList(exportData,lightPickerBlock)
+                if awdBlock.data.isCreated==False and awdBlock.data.colorMat==False:
+                    awdBlock.data.isCreated=True                
+                    mainMaterials.createMaterial(awdBlock.data,exportData)
                 if awdBlock.data.saveMatType==2:
                     textureBlock=exportData.allAWDBlocks[int(awdBlock.data.saveColorTextureID)]
                     if textureBlock is not None:

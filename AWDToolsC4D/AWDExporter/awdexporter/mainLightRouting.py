@@ -14,6 +14,71 @@ from awdexporter import classesAWDBlocks
 
 
 
+def createLight(lightBlock):
+    if True:            
+        lightStrength=lightBlock.sceneObject[c4d.LIGHT_BRIGHTNESS]
+        mainBool=lightBlock.sceneObject[c4d.LIGHT_NOLIGHTRADIATION]
+        if str(mainBool)==str(1):
+            lightStrength=0
+        diffuseValue=0
+        diffuseBool=lightBlock.sceneObject[c4d.LIGHT_DETAILS_DIFFUSE]
+        if str(diffuseBool)==str(1):
+            diffuseValue=lightStrength
+            
+        specularBool=lightBlock.sceneObject[c4d.LIGHT_DETAILS_SPECULAR]
+        specularValue=0
+        if str(specularBool)==str(1):
+            specularValue=lightStrength
+        
+        ambientBool=lightBlock.sceneObject[c4d.LIGHT_DETAILS_AMBIENT]
+        ambientValue=0
+        if str(ambientBool)==str(1):
+            ambientValue=lightStrength
+            
+        falloff=str(lightBlock.sceneObject[c4d.LIGHT_DETAILS_OUTERDISTANCE])
+        if lightBlock.sceneObject[c4d.LIGHT_DETAILS_FALLOFF]==0:
+            falloff=999999
+        lightBlock.nearRadius=lightBlock.sceneObject[c4d.LIGHT_DETAILS_INNERDISTANCE]
+        lightBlock.lightProps.append(1)
+        lightBlock.farRadius=falloff
+        lightBlock.lightProps.append(2)
+        lightBlock.color=[]        
+        colorVec=lightBlock.sceneObject[c4d.LIGHT_COLOR]
+        lightBlock.color.append(colorVec.z * 255)
+        lightBlock.color.append(colorVec.y * 255)
+        lightBlock.color.append(colorVec.x * 255)
+        lightBlock.color.append(255)
+        lightBlock.lightProps.append(3)
+        lightBlock.specIntestity=specularValue
+        lightBlock.lightProps.append(4)
+        lightBlock.diffuseIntensity=diffuseValue
+        lightBlock.lightProps.append(5)
+        lightBlock.ambientIntensity=ambientValue
+        lightBlock.lightProps.append(8)
+        lightBlock.lightProps.append(7)#ambient color is same as diffuse
+        
+        lightBlock.castShadows=False#!!!!!!!!!!!!!!!!!!
+        lightBlock.lightProps.append(10)
+        
+        
+        
+        positionVec=lightBlock.sceneObject.GetMg().off
+        directionVec=c4d.Vector(0,-1,1)
+        if lightBlock.lightType==2:          
+            directionVec=lightBlock.sceneObject.GetAbsRot()
+            directionVec = c4d.utils.MatrixToHPB(lightBlock.sceneObject.GetMg())#,c4d.ROTATIONORDER_XYZGLOBAL)
+            directionVec.Normalize() 
+            directionVec.x*=-1
+            #directionVec.y*=-1
+            #directionVec.z*=-1
+            lightBlock.directionVec=directionVec
+            lightBlock.lightProps.append(21)
+            lightBlock.lightProps.append(22)
+            lightBlock.lightProps.append(23)
+        
+        
+
+
 def saveLightXML(exportData):
     if len(exportData.allLightBlocks)==0:
         return
@@ -169,23 +234,21 @@ def getObjectLights(curObj,exportData):
             lightPickerString=""
     returnIdx=0
     if len(exportData.lightPickerDic)==0:
-        newAWDBlock=classesAWDBlocks.LightPickerBlock(exportData.idCounter,0,[])
-        exportData.allAWDBlocks.append(newAWDBlock)
-        exportData.idCounter+=1
         exportData.lightPickerDic[str("")]=0
-        exportData.lightPickerList.append(newAWDBlock)
     if lightPickerString!="":
         getLightPicker=exportData.lightPickerDic.get(str(lightPickerString),None)
         if getLightPicker is not None:
             returnIdx=getLightPicker
-        if getLightPicker is None:
+        if getLightPicker is None:                 
+            
+            newAWDWrapperBlock=classesAWDBlocks.WrapperBlock(None,"LightPicker",51)
             newAWDBlock=classesAWDBlocks.LightPickerBlock(exportData.idCounter,0,newLightsList)
-            newAWDBlock.name="LightPicker "+str(len(exportData.lightPickerList))
-            exportData.allAWDBlocks.append(newAWDBlock)
+            returnIdx=exportData.idCounter
             exportData.idCounter+=1
-            exportData.lightPickerList.append(newAWDBlock)
-            exportData.lightPickerDic[str(lightPickerString)]=len(exportData.lightPickerList)
-            returnIdx=len(exportData.lightPickerList)
+            exportData.lightPickerDic[str(lightPickerString)]=returnIdx
+            newAWDWrapperBlock.data=newAWDBlock
+            newAWDWrapperBlock.tagForExport=True    
+            exportData.allAWDBlocks.append(newAWDWrapperBlock)
             
         
     return returnIdx

@@ -91,14 +91,14 @@ class TriangleGeometrieBlock(BaseBlock):
         self.weightTag=None
         self.poseAnimationBlocks=[]
 
-        self.saveLookUpName = "testName"
+        self.name = "testName"
         self.saveGeometryProps = []
         self.saveSubMeshes = []
         self.saveUserAttributes = []
 
     def writeBinary(self,exportData):
         baseBlockBytes=super(TriangleGeometrieBlock, self).writeBinary(exportData)
-        triangleGeometrieBlockBytes=struct.pack("< H",len(self.saveLookUpName))+str(self.saveLookUpName)
+        triangleGeometrieBlockBytes=struct.pack("< H",len(self.name))+str(self.name)
         triangleGeometrieBlockBytes+=struct.pack("< H",len(self.saveSubMeshes))
         triangleGeometrieBlockBytes+=struct.pack("< I",len(self.saveGeometryProps))
         if exportData.debug==True:
@@ -118,7 +118,7 @@ class PrimitiveGeometrieBlock(BaseBlock):
         super(PrimitiveGeometrieBlock, self ).__init__(blockID,nameSpace,11)
         self.sceneObject=sceneObject
         self.sceneBlocks=[]
-        self.saveLookUpName="lookupName"
+        self.name="lookupName"
         self.wireStyle=0
         self.primType = 0
         self.primitiveProps = []
@@ -131,7 +131,7 @@ class PrimitiveGeometrieBlock(BaseBlock):
 
     def writeBinary(self,exportData):
         baseBlockBytes=super(PrimitiveGeometrieBlock, self).writeBinary(exportData)
-        primitiveGeometrieBlockBytes=struct.pack("< H",len(self.saveLookUpName))+str(self.saveLookUpName)
+        primitiveGeometrieBlockBytes=struct.pack("< H",len(self.name))+str(self.name)
         primitiveGeometrieBlockBytes+=struct.pack("< B",self.primType)
         
         
@@ -164,21 +164,19 @@ class LightPickerBlock(BaseBlock):
     def __init__(self,blockID=0,nameSpace=0,lightList=[]):
         super(LightPickerBlock, self ).__init__(blockID,nameSpace,51)
         self.lightList=lightList
+        self.saveLightList=[]
+        self.name="LightPicker_"
+        
 
     def writeBinary(self,exportData):
         baseBlockBytes=super(LightPickerBlock, self).writeBinary(exportData)
-        triangleGeometrieBlockBytes=struct.pack("< H",len(self.saveLookUpName))+str(self.saveLookUpName)
-        triangleGeometrieBlockBytes+=struct.pack("< H",len(self.saveSubMeshes))
-        triangleGeometrieBlockBytes+=struct.pack("< I",len(self.saveGeometryProps))
-        if exportData.debug==True:
-            print "SubMeshes Length = "+str(len(self.saveSubMeshes))
-        subMeshCount=0
-        while subMeshCount<len(self.saveSubMeshes):
-            subMeshBlockBytes=self.saveSubMeshes[subMeshCount].writeBinary(exportData)
-            triangleGeometrieBlockBytes+=struct.pack("< I",int(len(subMeshBlockBytes)-8))+subMeshBlockBytes
-            subMeshCount+=1
-        triangleGeometrieBlockBytes+=struct.pack("< I",len(self.saveUserAttributes))
-        return baseBlockBytes+struct.pack("< I",len(triangleGeometrieBlockBytes))+triangleGeometrieBlockBytes
+        lightPickBlockBytes=struct.pack("< H",len(self.name))+str(self.name)
+        lightPickBlockBytes+=struct.pack("< H",len(self.saveLightList))
+        for light in self.saveLightList:
+            lightPickBlockBytes+=struct.pack("< I",light)
+            
+        lightPickBlockBytes+=struct.pack("< I",0)
+        return baseBlockBytes+struct.pack("< I",len(lightPickBlockBytes))+lightPickBlockBytes
 
 
 class ContainerBlock(BaseSceneContainerBlock):
@@ -229,6 +227,7 @@ class LightBlock(BaseSceneContainerBlock):
         self.specIntestity = 0.0
         self.diffuseIntensity = 0.0
         self.castShadows = False
+        self.directionVec=None
     def writeBinary(self,exportData):
         baseBlockBytes,sceneBlockBytes=super(LightBlock, self).writeBinary(exportData)
         sceneBlockBytes+=struct.pack("< B",self.lightType)
@@ -242,7 +241,8 @@ class LightBlock(BaseSceneContainerBlock):
                 lightAttributesBytes+=struct.pack("< H",lightProperty)
                 lightAttributesBytes+=struct.pack("< I",4)
                 lightAttributesBytes+=struct.pack("< f",float(self.farRadius))
-            if lightProperty==3:
+            if lightProperty==3 or lightProperty==7:
+                lightAttributesBytes+=struct.pack("< H",lightProperty)
                 lightAttributesBytes+=struct.pack("< I",4)
                 lightAttributesBytes+=struct.pack("< B",int(self.color[0]))
                 lightAttributesBytes+=struct.pack("< B",int(self.color[1]))
@@ -256,10 +256,26 @@ class LightBlock(BaseSceneContainerBlock):
                 lightAttributesBytes+=struct.pack("< H",lightProperty)
                 lightAttributesBytes+=struct.pack("< I",4)
                 lightAttributesBytes+=struct.pack("< f",float(self.diffuseIntensity))
+            if lightProperty==8:
+                lightAttributesBytes+=struct.pack("< H",lightProperty)
+                lightAttributesBytes+=struct.pack("< I",4)
+                lightAttributesBytes+=struct.pack("< f",float(self.ambientIntensity))     
             if lightProperty==10:
                 lightAttributesBytes+=struct.pack("< H",lightProperty)
                 lightAttributesBytes+=struct.pack("< I",1)
-                lightAttributesBytes+=struct.pack("< B",self.castShadows)
+                lightAttributesBytes+=struct.pack("< B",self.castShadows)   
+            if lightProperty==21:
+                lightAttributesBytes+=struct.pack("< H",lightProperty)
+                lightAttributesBytes+=struct.pack("< I",4)
+                lightAttributesBytes+=struct.pack("< f",self.directionVec.x)
+            if lightProperty==22:
+                lightAttributesBytes+=struct.pack("< H",lightProperty)
+                lightAttributesBytes+=struct.pack("< I",4)
+                lightAttributesBytes+=struct.pack("< f",self.directionVec.y)
+            if lightProperty==23:
+                lightAttributesBytes+=struct.pack("< H",lightProperty)
+                lightAttributesBytes+=struct.pack("< I",4)
+                lightAttributesBytes+=struct.pack("< f",self.directionVec.z)
 
         sceneBlockBytes+=struct.pack("< I",len(lightAttributesBytes))+str(lightAttributesBytes)
         sceneBlockBytes+=struct.pack("< I",0)
@@ -268,10 +284,19 @@ class LightBlock(BaseSceneContainerBlock):
       
         
 class CameraBlock(BaseSceneContainerBlock):
-    def __init__(self):
+    def __init__(self,blockID=0,nameSpace=0,sceneObject=None):
+        super(CameraBlock, self ).__init__(blockID,nameSpace,sceneObject,42)
         self.name = "undefined"
     def writeBinary(self,exportData):
         baseBlockBytes,sceneBlockBytes=super(CameraBlock, self).writeBinary(exportData)
+        sceneBlockBytes+=struct.pack("< B",False)
+        sceneBlockBytes+=struct.pack("< H",1)#length of lenses (for now always 1
+        sceneBlockBytes+=struct.pack("< H",5001)
+        lensBytes=str()
+        lensBytes+=struct.pack("< H",101)
+        lensBytes+=struct.pack("< I",4)
+        lensBytes+=struct.pack("< f",self.lensFOV)
+        sceneBlockBytes+=struct.pack("< I",len(lensBytes))+str(lensBytes)
         sceneBlockBytes+=struct.pack("< I",0)
         sceneBlockBytes+=struct.pack("< I",0)
         return baseBlockBytes+struct.pack("< I",len(sceneBlockBytes))+sceneBlockBytes
@@ -288,8 +313,12 @@ class StandartMaterialBlock(BaseBlock):
         self.userAttributes = None
         self.colorMat = colorMat
         self.isCreated = False
+        self.textureTags = []
+        self.lightPicker = 0
+        self.materialsList = []
+        self.repeat = False
 
-        self.saveLookUpName = ""
+        self.name = ""
         self.saveMatType = 1
         self.saveShaders = []
         self.saveMatProps = []
@@ -324,7 +353,7 @@ class StandartMaterialBlock(BaseBlock):
 
     def writeBinary(self,exportData):
         baseBlockBytes=super(StandartMaterialBlock, self).writeBinary(exportData)
-        materialBlockBytes=struct.pack("< H",len(self.saveLookUpName))+str(self.saveLookUpName)
+        materialBlockBytes=struct.pack("< H",len(self.name))+str(self.name)
         materialBlockBytes+=struct.pack("< B",self.saveMatType)
         materialBlockBytes+=struct.pack("< B",len(self.saveShaders))
         materialBAttributesBytes=str()
@@ -447,7 +476,7 @@ class TextureBlock(BaseBlock):
         
     def writeBinary(self,exportData):
         baseBlockBytes=super(TextureBlock, self).writeBinary(exportData)
-        textureBlockBytes=struct.pack("< H",len(self.saveLookUpName))+str(self.saveLookUpName)
+        textureBlockBytes=struct.pack("< H",len(self.name))+str(self.name)
         textureBlockBytes+=struct.pack("< B",self.saveIsEmbed)
         if self.saveIsEmbed==0:
             textureData=str(self.saveFileName)
@@ -738,7 +767,8 @@ class MetaDataBlock(BaseBlock):
         super(MetaDataBlock, self ).__init__(blockID,nameSpace,255)
     def writeBinary(self,exportData):
         baseBlockBytes=super(MetaDataBlock, self).writeBinary(exportData)
-        return baseBlockBytes+struct.pack("< I",0)
+        metaDataBytes=struct.pack("< I",0)
+        return baseBlockBytes+struct.pack("< I",len(metaDataBytes))+metaDataBytes
 		
 		
 class BaseAttribute(object):

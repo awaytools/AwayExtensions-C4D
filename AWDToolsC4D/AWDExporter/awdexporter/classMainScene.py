@@ -35,6 +35,7 @@ class mainScene(object):
         self.exportLightXML=mainDialog.GetBool(ids.CBOX_EXPORTLIGHTXML)
         self.exportExtraMats=mainDialog.GetBool(ids.CBOX_LIGHTMATERIALS)
         self.exportUnsupportedTextures=mainDialog.GetBool(ids.CBOX_UNSUPPORTETTEX)
+        self.primitives=[]
         
         # store the current selected objects/tags/materials, so we can restore the selection after export
         self.originalActiveObjects = doc.GetActiveObjects(True)
@@ -74,7 +75,7 @@ class mainScene(object):
         self.allVertexAnimations=[]
         self.lightPickerDic = {}  # dictionary to makes shure only one LightPicker is created for each combination of Lights 
         self.lightPickerList = [] # will contain all LightPickers - LightPicker are no AWDBlocks, but simple classes containing a name and a list of light-indicies (allAWDBlocks[lightIndex]=lightBlock)
-        
+        self.lightPickerCounter=0
         self.allLights = []   # a list of all lights, used by mainLightRouting
         
         self.defaultObjectSettings = 0    

@@ -55,7 +55,7 @@ def convertMesh(meshBlock,exportData,workerthreat):
     allmaterials=[]
     allInstanceMaterials=[]
     allSelections=workerHelpers.getAllPolySelections(meshBlock.data.sceneObject,exportData) # get all the polygon-selections as a list of helperclass.PolySelection
-    baseGeoMaterials=workerHelpers.getMaterials(meshBlock.data.sceneObject,allSelections,False) # get all the Materials that are applied by a textureTag on the PolygonObject directly
+    baseGeoMaterials=workerHelpers.getMaterials(meshBlock.data.sceneObject,allSelections,False,exportData) # get all the Materials that are applied by a textureTag on the PolygonObject directly
     useSelectionsComplete=False
     useInstanceSelection=[]
     print "baseGeoMaterials "+str(baseGeoMaterials)
@@ -98,7 +98,7 @@ def convertMesh(meshBlock,exportData,workerthreat):
  
         instanceCnt=0
         for instanceBlock in meshBlock.data.sceneBlocks:
-            instanceMaterials=workerHelpers.getMaterials(instanceBlock.data.sceneObject,allSelections,True)# search for all materials that are applied to the instance-object (including inheritet tags)
+            instanceMaterials=workerHelpers.getMaterials(instanceBlock.data.sceneObject,allSelections,True,exportData)# search for all materials that are applied to the instance-object (including inheritet tags)
             textBaseMat=None
             if instanceBlock.data.isRenderInstance==True: # if the instance is considered a renderInstance, we use the baseObject (meshblock.sceneObject) for the ObjectColorMode-check
                 instanceBlock=meshBlock
@@ -188,10 +188,12 @@ def convertMesh(meshBlock,exportData,workerthreat):
         for vertexanimationBlock in instanceBlock.data.poseAnimationBlocks:
             addposeAnimationBlock(meshBlock.data.poseAnimationBlocks,vertexanimationBlock,poseAnimationDic)
         
-        #instanceBlock.lightPickerIdx=mainLightRouting.getObjectLights(instanceBlock.sceneObject,exportData)# get the LightPicker for this sceneObject (if the lightpicker does not allready exists, it will be created)
+        instanceBlock.data.lightPickerIdx=mainLightRouting.getObjectLights(instanceBlock.data.sceneObject,exportData)# get the LightPicker for this sceneObject (if the lightpicker does not allready exists, it will be created)
         for mat in instanceBlock.data.saveMaterials:
+            print "AWDMATERIALTEXTURETAG = "+str(exportData.allAWDBlocks[int(mat)].data.textureTag)
             matAwdBlock=exportData.allAWDBlocks[int(mat)]
             if matAwdBlock is not None:
+                matAwdBlock=workerHelpers.checkMaterialForLightAndRepeat(matAwdBlock,exportData)
                 if matAwdBlock.data.isCreated==False and matAwdBlock.data.colorMat==False:
                     matAwdBlock.data.isCreated=True                
                     mainMaterials.createMaterial(matAwdBlock.data,exportData)

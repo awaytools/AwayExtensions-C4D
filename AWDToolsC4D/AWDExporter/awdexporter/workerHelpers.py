@@ -10,6 +10,7 @@ from awdexporter import classesHelper
 from awdexporter import workerReorderBlocks
 from awdexporter import classesAWDBlocks
 from awdexporter import mainMaterials
+from awdexporter import mainLightRouting
 
 # called by "WorkerExporter.py"
 def getAllObjectData(exportData):
@@ -29,7 +30,6 @@ def exportAllData(exportData):
     outputBits+=struct.pack('< B',exportData.headerCompressionType)
     outputBlocks=str()
     blocksparsed=0
-    print exportData.allSaveAWDBlocks
     while blocksparsed<len(exportData.allSaveAWDBlocks):
         outputBlocks+=exportData.allSaveAWDBlocks[blocksparsed].writeBinary(exportData)
         blocksparsed+=1
@@ -45,10 +45,57 @@ def exportAllData(exportData):
     if exportData.openPrefab==True:
         c4d.storage.GeExecuteFile(exportData.datei)
     return
+  
+def applymaterialsToPrimitives(exportData): 
+    for primitiveBlock in exportData.primitives:    
+        primitiveBlock.data.lightPickerIdx=mainLightRouting.getObjectLights(primitiveBlock.targetObject,exportData)# get the LightPicker for this sceneObject (if the lightpicker does not allready exists, it will be created)
+        materials=getMaterials(primitiveBlock.targetObject,[],True,exportData) 
+        thisMat=None
+        geoBlock=exportData.allAWDBlocks[int(primitiveBlock.data.geoBlockID)]
+        geoBlock.data.hasMats=False
+        if len(materials)>0:
+            geoBlock.data.hasMats=True
+            thisMat=materials[len(materials)-1]
+        materials2=getObjectColorMode(primitiveBlock.targetObject,thisMat,exportData)
+        exportData.allAWDBlocks[int(materials2[1][0])].tagForExport=True
+        geoBlock.data.colorStyle=materials2[0]
+        #if materials2[0]==True:
+        geoBlock.data.baseMat=materials2[1][0]
+        repeat=False
+        if len(exportData.allAWDBlocks[int(materials2[1][0])].data.materialsList)==0:
+            exportData.allAWDBlocks[int(materials2[1][0])].data.materialsList.append(materials2[1][0])
+            exportData.allAWDBlocks[int(materials2[1][0])].data.lightPicker=primitiveBlock.data.lightPickerIdx
+            exportData.allAWDBlocks[int(materials2[1][0])].data.repeat=False
+            foundMat=materials2[1][0]
+        else:
+            foundMat=-1
+            for matID in exportData.allAWDBlocks[int(materials2[1][0])].data.materialsList:
+                if exportData.allAWDBlocks[int(matID)].data.lightPicker==primitiveBlock.data.lightPickerIdx:
+                    if exportData.allAWDBlocks[int(matID)].data.repeat==repeat:
+                        foundMat=matID
+            if foundMat==-1:
+                foundMat=copyAsNewMaterialBlock(exportData,exportData.allAWDBlocks[int(materials2[1][0])],primitiveBlock.data.lightPickerIdx,repeat)
+                print "CREATE NEW MATERIAL"
+        primitiveBlock.data.saveMaterials.append(foundMat)  
+    
+def copyAsNewMaterialBlock(exportData, matBlock, lightPicker, repeat):
+      # create a AWD-Material-Block for the C4D-Default-Color, in case some Objects have no Materials/ObjectColors Applied
+    newAWDWrapperBlock=classesAWDBlocks.WrapperBlock(matBlock.targetObject,matBlock.name,81)
+    newAWDBlock=classesAWDBlocks.StandartMaterialBlock(exportData.idCounter,0,matBlock.data.colorMat)
+    newAWDBlock.mat=matBlock.data.mat
+    newAWDBlock.saveLookUpName=matBlock.name
+    newAWDBlock.name=matBlock.data.name
+    newAWDBlock.lightPicker=lightPicker
+    newAWDBlock.repeat=repeat
+    newAWDWrapperBlock.data=newAWDBlock
+    newAWDWrapperBlock.tagForExport=True 
+    exportData.allAWDBlocks.append(newAWDWrapperBlock)  
+    returner=exportData.idCounter
+    exportData.idCounter+=1
+    return returner
     
 
 def reorderAllBlocks(exportData):
-
     for awdBlock in exportData.allSceneObjects:
         workerReorderBlocks.addToExportList(exportData,awdBlock)
     for awdBlock in exportData.allAWDBlocks:
@@ -56,46 +103,51 @@ def reorderAllBlocks(exportData):
 
 def connectInstances(exportData):
     for instanceBlock in exportData.unconnectedInstances:
+        isPoly=False
+        if instanceBlock.data.sceneObject[c4d.INSTANCEOBJECT_LINK].GetType()==c4d.Opolygon:
+            isPoly=True
         geoInstanceID=instanceBlock.data.sceneObject[c4d.INSTANCEOBJECT_LINK].GetName()
         instanceGeoBlock=exportData.allAWDBlocks[int(geoInstanceID)]   
         if instanceGeoBlock is not None:
             geoBlockID=instanceGeoBlock.data.geoBlockID
             geoBlock=exportData.allAWDBlocks[int(geoBlockID)]    
-            if geoBlock is not None:      
+            if geoBlock is not None: 
+                instanceBlock.data.geoBlockID=geoBlockID
                 geoBlock.data.sceneBlocks.append(instanceBlock)
-                if str(geoBlock.blockType)==str(11):
-                    print "instanceGeoBlock.blockType==11"
-                    if instanceBlock.data.isRenderInstance==True:
-                        if geoBlock.data.colorStyle==False:
-                            instanceBlock.data.saveMaterials=[geoBlock.data.baseMat]
-                        if geoBlock.data.colorStyle==True:
-                            if geoBlock.data.hasMats==True:
+                if isPoly==False:
+                    instanceBlock.data.lightPickerIdx=mainLightRouting.getObjectLights(instanceBlock.targetObject,exportData)# get the LightPicker for this sceneObject (if the lightpicker does not allready exists, it will be created)
+                    if str(geoBlock.blockType)==str(11):
+                        if instanceBlock.data.isRenderInstance==True:
+                            if geoBlock.data.colorStyle==False:
                                 instanceBlock.data.saveMaterials=[geoBlock.data.baseMat]
-                            if geoBlock.data.hasMats==False:
-                                materials=getMaterials(instanceBlock.dtaa.sceneObject,[],True) 
-                                if len(materials)>0:
-                                    instanceBlock.data.saveMaterials=materials[len(materials)-1]
-                                else:
-                                    instanceBlock.data.saveMaterials=int(0)
-                    if instanceBlock.data.isRenderInstance==False:
-                        materials=getMaterials(instanceBlock.data.sceneObject,[],True) 
-                        thisMaterial=None
-                        if len(materials)>0:
-                            thisMaterial=materials[len(materials)-1]                    
-                        if geoBlock.hasMats==True:
-                            thisMaterial=geoBlock.data.baseMat
-                        returnList = getObjectColorMode(instanceBlock.data.sceneObject,thisMaterial,exportData)
-                        instanceBlock.data.saveMaterials=[returnList[1][0]]
-                    for mat in instanceBlock.data.saveMaterials:
-                        matAwdBlock=exportData.allAWDBlocks[int(mat)]
-                        if matAwdBlock is not None:
-                            if matAwdBlock.data.isCreated==False and matAwdBlock.data.colorMat==False:
-                                matAwdBlock.data.isCreated=True                
-                                mainMaterials.createMaterial(matAwdBlock.data,exportData)
-                            #if instanceBlock.lightPickerIdx>0:
-                                #matAwdBlock.lightPickerID=instanceBlock.lightPickerIdx
-                            if matAwdBlock.tagForExport==False:
-                                matAwdBlock.tagForExport=True
+                            if geoBlock.data.colorStyle==True:
+                                if geoBlock.data.hasMats==True:
+                                    instanceBlock.data.saveMaterials=[geoBlock.data.baseMat]
+                                if geoBlock.data.hasMats==False:
+                                    materials=getMaterials(instanceBlock.data.sceneObject,[],True,exportData) 
+                                    if len(materials)>0:
+                                        instanceBlock.data.saveMaterials=[materials[len(materials)-1]]
+                                    else:
+                                        instanceBlock.data.saveMaterials=[-1]
+                        if instanceBlock.data.isRenderInstance==False:
+                            materials=getMaterials(instanceBlock.data.sceneObject,[],True,exportData) 
+                            thisMaterial=None
+                            if len(materials)>0:
+                                thisMaterial=materials[len(materials)-1]                    
+                            if geoBlock.data.hasMats==True:
+                                thisMaterial=geoBlock.data.baseMat
+                            returnList = getObjectColorMode(instanceBlock.data.sceneObject,thisMaterial,exportData)
+                            instanceBlock.data.saveMaterials=[returnList[1][0]]
+                        for mat in instanceBlock.data.saveMaterials:
+                            matAwdBlock=exportData.allAWDBlocks[int(mat)]
+                            if matAwdBlock is not None:
+                                if matAwdBlock.data.isCreated==False and matAwdBlock.data.colorMat==False:
+                                    matAwdBlock.data.isCreated=True                
+                                    mainMaterials.createMaterial(matAwdBlock.data,exportData)
+                                #if instanceBlock.lightPickerIdx>0:
+                                    #matAwdBlock.lightPickerID=instanceBlock.lightPickerIdx
+                                if matAwdBlock.tagForExport==False:
+                                    matAwdBlock.tagForExport=True               
                     
         instanceBlock.geoBlockID=geoBlockID
         
@@ -110,7 +162,7 @@ def getObjectColorMatBlock(exportData,colorVector):
     
     newAWDWrapperBlock=classesAWDBlocks.WrapperBlock(None,"",11)
     newAWDBlock=classesAWDBlocks.StandartMaterialBlock(exportData.idCounter,0,True)
-    newAWDBlock.saveLookUpName="Material"
+    newAWDBlock.name="Material"
     newAWDBlock.matColor=[colorVector.z*255,colorVector.y*255,colorVector.x*255,0]
     newAWDBlock.saveMatProps.append(1)
     newAWDBlock.isCreated=True
@@ -118,11 +170,12 @@ def getObjectColorMatBlock(exportData,colorVector):
     newAWDWrapperBlock.data=newAWDBlock
     exportData.idCounter+=1
     exportData.allAWDBlocks.append(newAWDWrapperBlock) 
-    exportData.colorMaterials[newColorVecString]=newAWDBlock
+    exportData.colorMaterials[newColorVecString]=newAWDWrapperBlock
     #exportData.MaterialsToAWDBlocksDic[str(defaultMaterial)]=newAWDBlock 
     return newAWDWrapperBlock
        
 
+    
 # this is the function that gets called from the "mainExporter"
 def createAnimatorBlocks(objList,exportData):
     for object in objList:                                      # for every object do:
@@ -175,7 +228,7 @@ def getAllPolySelections(curObj,exportData):
     return allSelections
    
 # returns a list of materials (if inherite==True, the list will inculde materials that are applied to the 
-def getMaterials(curObj,allSelections,inherite):
+def getMaterials(curObj,allSelections,inherite,exportData):
     returnMats=[]
     for tag in curObj.GetTags():                                        # do for each tag on the Object:  
         if tag.GetType()==c4d.Ttexture:                                     # if the tag is a texture tag:
@@ -205,6 +258,7 @@ def getMaterials(curObj,allSelections,inherite):
                                 newMaterialList=[]
                                 newMaterialList.append(tag.GetMaterial().GetName())             
                                 newMaterialList.append(selection)
+                                exportData.allAWDBlocks[int(tag.GetMaterial().GetName())].data.textureTags.append(tag)
                                 newMaterialList.append(tag)  
                                 returnMats.append(newMaterialList)
                         break
@@ -223,15 +277,17 @@ def getMaterials(curObj,allSelections,inherite):
                         newMaterialList=[]
                         newMaterialList.append(tag.GetMaterial().GetName())                      
                         newMaterialList.append(classesHelper.PolySelection("Base",[]))
+                        exportData.allAWDBlocks[int(tag.GetMaterial().GetName())].data.textureTags.append(tag)
                         newMaterialList.append(tag)  
                         returnMats=[newMaterialList]
     if inherite==True and len(returnMats)==0:
         parentObj=curObj.GetUp()
         if parentObj is not None:
-            returnMats=getMaterials(parentObj,allSelections,True)
+            returnMats=getMaterials(parentObj,allSelections,True,exportData)
             
     return returnMats
-                    
+           
+
 # get the materials applied to a mesh. if the mesh has no texture applied, the function will be executed for its Parent-Object, so we can read out the c4d-materials inheritage			
 def getObjectColorMode(curObj,textureBaseMaterial,exportData):
     
