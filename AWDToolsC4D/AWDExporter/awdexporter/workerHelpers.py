@@ -138,16 +138,33 @@ def connectInstances(exportData):
                                 thisMaterial=geoBlock.data.baseMat
                             returnList = getObjectColorMode(instanceBlock.data.sceneObject,thisMaterial,exportData)
                             instanceBlock.data.saveMaterials=[returnList[1][0]]
+                        matCount=0
                         for mat in instanceBlock.data.saveMaterials:
                             matAwdBlock=exportData.allAWDBlocks[int(mat)]
                             if matAwdBlock is not None:
+                                repeat=False
+                                if len(matAwdBlock.data.materialsList)==0:
+                                    matAwdBlock.data.materialsList.append(mat)
+                                    matAwdBlock.data.lightPicker=instanceBlock.data.lightPickerIdx
+                                    matAwdBlock.data.repeat=False
+                                    foundMat=mat
+                                else:
+                                    foundMat=-1
+                                    for matID in matAwdBlock.data.materialsList:
+                                        if exportData.allAWDBlocks[int(matID)].data.lightPicker==instanceBlock.data.lightPickerIdx:
+                                            if exportData.allAWDBlocks[int(matID)].data.repeat==repeat:
+                                                foundMat=matID
+                                    if foundMat==-1:
+                                        foundMat=copyAsNewMaterialBlock(exportData,matAwdBlock,instanceBlock.data.lightPickerIdx,repeat)
+                                instanceBlock.data.saveMaterials[matCount]=foundMat  
                                 if matAwdBlock.data.isCreated==False and matAwdBlock.data.colorMat==False:
                                     matAwdBlock.data.isCreated=True                
                                     mainMaterials.createMaterial(matAwdBlock.data,exportData)
                                 #if instanceBlock.lightPickerIdx>0:
                                     #matAwdBlock.lightPickerID=instanceBlock.lightPickerIdx
                                 if matAwdBlock.tagForExport==False:
-                                    matAwdBlock.tagForExport=True               
+                                    matAwdBlock.tagForExport=True         
+                            matCount+=1      
                     
         instanceBlock.geoBlockID=geoBlockID
         

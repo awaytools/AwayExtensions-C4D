@@ -189,17 +189,32 @@ def convertMesh(meshBlock,exportData,workerthreat):
             addposeAnimationBlock(meshBlock.data.poseAnimationBlocks,vertexanimationBlock,poseAnimationDic)
         
         instanceBlock.data.lightPickerIdx=mainLightRouting.getObjectLights(instanceBlock.data.sceneObject,exportData)# get the LightPicker for this sceneObject (if the lightpicker does not allready exists, it will be created)
+        matCount=0
         for mat in instanceBlock.data.saveMaterials:
-            print "AWDMATERIALTEXTURETAG = "+str(exportData.allAWDBlocks[int(mat)].data.textureTag)
             matAwdBlock=exportData.allAWDBlocks[int(mat)]
             if matAwdBlock is not None:
-                matAwdBlock=workerHelpers.checkMaterialForLightAndRepeat(matAwdBlock,exportData)
+                repeat=False
+                if len(matAwdBlock.data.materialsList)==0:
+                    matAwdBlock.data.materialsList.append(mat)
+                    matAwdBlock.data.lightPicker=instanceBlock.data.lightPickerIdx
+                    matAwdBlock.data.repeat=False
+                    foundMat=mat
+                else:
+                    foundMat=-1
+                    for matID in matAwdBlock.data.materialsList:
+                        if exportData.allAWDBlocks[int(matID)].data.lightPicker==instanceBlock.data.lightPickerIdx:
+                            if exportData.allAWDBlocks[int(matID)].data.repeat==repeat:
+                                foundMat=matID
+                    if foundMat==-1:
+                        foundMat=workerHelpers.copyAsNewMaterialBlock(exportData,matAwdBlock,instanceBlock.data.lightPickerIdx,repeat)
+                instanceBlock.data.saveMaterials[matCount]=foundMat  
                 if matAwdBlock.data.isCreated==False and matAwdBlock.data.colorMat==False:
                     matAwdBlock.data.isCreated=True                
                     mainMaterials.createMaterial(matAwdBlock.data,exportData)
                 #if instanceBlock.data.lightPickerIdx>0:
                 #    matAwdBlock.data.lightPickerID=instanceBlock.data.lightPickerIdx
                 matAwdBlock.tagForExport=True
+            matCount+=1
                     
         
    
