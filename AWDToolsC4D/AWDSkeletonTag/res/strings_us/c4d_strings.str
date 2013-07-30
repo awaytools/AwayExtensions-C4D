@@ -1,8 +1,0 @@
-// C4D-StringResource
-// Identifier    Text
-
-STRINGTABLE
-{
-  IDS_AWDSKELETONTAG "AWD Skeleton Tag";
-
-}

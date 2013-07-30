@@ -1,8 +1,0 @@
-STRINGTABLE AWDObjectSettings
-{
-    AWDObjectSettings   "AWDObjectSettings";
-
-    DAPE_APPLYTOCHILDS  "Apply to Children";
-    DAPE_EXPORT         "Export";
-
-}
