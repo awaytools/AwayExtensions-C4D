@@ -1,0 +1,19 @@
+// C4D-StringResource
+// Identifier    Text
+
+STRINGTABLE
+{
+  IDS_AWDSKELETONANIMATIONTAG "AWD Skeleton Animation Tag";
+  COMBO_RANGE_DOC         "Document";
+  COMBO_RANGE_PREVIEW     "Preview";
+  COMBO_RANGE_CUSTOM      "Custom";
+  COMBO_RANGE_GLOBAL      "Global";
+  COMBO_RANGE_STR         "Range";
+  REAL_FIRSTFRAME_STR     "First Frame";
+  REAL_LASTFRAME_STR      "Last Frame";
+  COMBO_ALLFRAMES_ALL         "All";
+  COMBO_ALLFRAMES_OBJECTKEYS     "use Object KeyFrames";
+  COMBO_ALLFRAMES_TAGKEYS      "use Tag KeyFrames";
+  COMBO_ALLFRAMES_STR         "Keyframe-Mode: ";
+
+}

@@ -1,0 +1,242 @@
+#vlb1overlay{
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:190;
+	width:100%;
+	height:auto;
+	background-color:#ffffff;
+}
+
+#vlb1lightbox{
+	position:absolute;
+	top:20px;
+	left:0;
+	width:100%;
+	z-index:200;
+	text-align:center;
+	color:#151410;
+	line-height:0;
+}
+#vlb1lightbox td{
+	vertical-align:top;
+}
+#vlb1lightbox a, #vlb1lightbox a:hover {
+	border-bottom:none;
+	color:#151410;
+	text-decoration:underline;
+}
+
+#vlb1lightbox a img{ border:none; }
+
+#vlb1outerImageContainer{
+	width:auto;
+	height:auto; /* without this line error in IE8 detected */
+	margin:0 auto;
+	position:relative;
+}
+
+#vlb1lightboxImage{
+	width:100%;
+	height:100%;
+}
+
+#vlb1imageContainerMain{
+	margin:0 auto;
+	overflow:visible;
+	position:relative;
+	font-size:0;/* ie fix - big info bar*/
+}
+
+#vlb1imageContainer{
+	width:10px;
+	height:10px;
+	margin:0 auto;
+	overflow:hidden;
+	background-color:#fff;
+	position:relative;
+	font-size:0;/* ie fix - big info bar*/
+}
+
+#vlb1loading{
+	position:absolute;
+	top:40%;
+	left:0%;
+	height:25%;
+	width:100%;
+	text-align:center;
+	font-size:10px;
+	z-index:1;
+}
+#vlb1loadingLink {
+	display:block;
+	margin:0 auto;
+	padding:0;
+	width:32px;
+	height:32px;
+	background:url(loading.gif) center center no-repeat;
+	text-indent:-9999px;
+}
+#vlb1hoverNav{
+	position:absolute;
+	top:0;
+	left:0;
+	height:100%;
+	width:100%;
+	z-index:10;
+}
+#vlb1imageContainer>#hoverNav{ left:0;}
+#vlb1prevLinkImg, #vlb1nextLinkImg{
+	top:0;
+	width:48px;
+	height:100%;
+	position:absolute;
+	z-index:20;
+	outline-style:none;
+	display:block;
+	text-indent:-9999px;
+	background:none;
+	}
+* html #vlb1prevLinkImg,* html #vlb1nextLinkImg{
+	background-image:url(data:image/gif;base64,AAAA); /* Trick IE into showing hover */
+}
+#vlb1prevLinkImg { left: 0; }
+#vlb1nextLinkImg { right: 0; }
+#vlb1prevLinkImg:hover, #vlb1prevLinkImg.hover, #vlb1prevLinkImg:visited:hover { 
+	background:url(prev.png) 5% center no-repeat; 
+	_background-image:url(prev_ie6.gif)
+}
+#vlb1nextLinkImg:hover, #vlb1nextLinkImg.hover, #vlb1nextLinkImg:visited:hover { 
+	background:url(next.png) 97% center no-repeat; 
+	_background-image:url(next_ie6.gif)
+}
+
+
+#vlb1imageDataContainer{
+	font:10px Verdana, Helvetica, sans-serif;
+	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
+	font-size:12px;
+	background-color:#fff;
+	width:100%;
+}
+
+#vlb1imageData{
+	overflow:hidden;
+	width:100%;
+}
+#vlb1imageDetails{ width:70%; float:left; text-align:left; 	padding:10px 10px 0 0;}
+#vlb1caption{ font-weight:bold; display:block;}
+#vlb1numberDisplay{ display:block; float:left; padding:3px 10px 0 0;}
+#vlb1detailsNav{display:block; float:left;   padding:0; }	
+#vlb1prevLinkDetails, #vlb1nextLinkDetails, #vlb1slideShowControl{ background-repeat:no-repeat; outline-style:none; display:block; float:left;}
+#vlb1prevLinkDetails { margin:3px; margin-top:0px; width:24px;height:24px; background:url(prevlabel.gif) left center;}
+#vlb1nextLinkDetails { margin:3px; margin-top:0px; width:24px;height:24px; background:url(nextlabel.gif) right center;}
+
+#vlb1slideShowControl.started{
+	background-image:url(pause.gif);
+}
+
+#vlb1slideShowControl{
+	display:block;
+	width:24px; 
+	height:24px; 
+	float:left;
+	background:url(start.gif);
+	background-position:center center;
+	background-repeat:no-repeat;
+	}
+
+#vlb1close{
+	padding:20px 0 0;
+	float:right;
+}
+#vlb1closeLink {
+	display:block; outline-style:none; margin:0; padding:0; text-decoration:none; 
+	width:32px;
+	height:32px;
+	background:url(close.gif) no-repeat;
+}	
+		
+	
+.clearfix:after { content:"."; display:block; height:0; clear:both; visibility:hidden;}
+* html>body .clearfix {display:inline-block; width:100%;}
+
+* html .clearfix {
+	/* Hides from IE-mac \*/
+	height:1%;
+	/* End hide from IE-mac */
+}	
+	
+
+#vlb1outerImageFrame{
+	border:solid 1px red;
+	height:100%;
+	width:100%;
+	position:absolute;
+}
+
+
+#vlb1outerImageContainer{
+	overflow:visible;
+}
+#vlb1outerImageContainer td{
+	text-align:center;
+	padding:0;
+}
+
+#vlb1lightboxFrameBody{
+	background-color:#fff;
+	border:solid 1px #fff; /* hack for opera table small cell width */
+}
+
+#vlb1outerImageContainer td, #vlb1outerImageContainer tr{
+	font-size:0;
+	border:0 none;
+}
+/* frame style */
+#vlb1outerImageContainer td.tl, #vlb1outerImageContainer td.br{
+	height:38px;
+	width:38px;
+}
+.vlb{display:none;}
+#vlb1outerImageContainer td.tl{
+	background-image:url(borderTopLeft.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderTopLeft.png', sizingMethod='scale');
+}
+#vlb1outerImageContainer td.tc{
+	background-image:url(borderTopCenter.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderTopCenter.png', sizingMethod='scale');
+}
+#vlb1outerImageContainer td.tr{
+	background-image:url(borderTopRight.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderTopRight.png', sizingMethod='scale');
+}
+#vlb1outerImageContainer td.ml{
+	background-image:url(borderMiddleLeft.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderMiddleLeft.png', sizingMethod='scale');
+}
+#vlb1outerImageContainer td.mr{
+	background-image:url(borderMiddleRight.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderMiddleRight.png', sizingMethod='scale');
+}
+#vlb1outerImageContainer td.bl{
+	background-image:url(borderBottomLeft.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderBottomLeft.png', sizingMethod='scale');
+}
+#vlb1outerImageContainer td.bc{
+	background-image:url(borderBottomCenter.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderBottomCenter.png', sizingMethod='scale');
+}
+#vlb1outerImageContainer td.br{
+	background-image:url(borderBottomRight.png);
+	_background-image:none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='index_files/vlb_files1/borderBottomRight.png', sizingMethod='scale');
+}
+

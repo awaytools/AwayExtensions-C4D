@@ -9,7 +9,7 @@ A "CheckForUpdate" function is included in the File-Menu of the Exporter-Plugin.
 
 At any time make shure to use the latest version of the plugin.
 
-For mor informations, please visit http://awaytools.com/awayextensions/
+For more informations, please visit http://awaytools.com/awayextensions/c4d/
 
 
 
