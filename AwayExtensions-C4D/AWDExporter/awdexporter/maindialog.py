@@ -280,14 +280,14 @@ class MainDialog(c4d.gui.GeDialog):
             
         if id == ids.MENU_CHECKFORUPDATE: 
             realPath= os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
-            helpPath=os.path.join(realPath, "res",  "awdtoolsc4dversion.xml")
+            helpPath=os.path.join(realPath, "res",  "awayextensionsc4dversion.xml")
             versionThis=maindialogHelpers.loadVersionFile(helpPath)
             versionWeb=maindialogHelpers.loadVersionFilefromNet()
             if versionThis=="" or versionWeb=="":
                 return
             if versionThis!=versionWeb:
                 message="Your Version is not up to date\n"
-                message+="Go to \nhttps://github.com/awaytools/awd-tools-c4d\n and get the new version"
+                message+="Go to \nhttps://github.com/awaytools/AwayExtensions-C4D\n and get the new version\n\n"
                 message+="Your version = "+str(versionThis)+"\n"
                 message+="Latest version = "+str(versionWeb)+"\n"
             if versionThis==versionWeb:

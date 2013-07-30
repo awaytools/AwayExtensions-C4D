@@ -9,7 +9,7 @@ import xml.dom.minidom as dom
 
 
 def loadVersionFilefromNet():
-    req = urllib2.Request("http://www.differentdesign.de/awdtoolsc4dversion.xml")
+    req = urllib2.Request("http://awaytools.com/awayextensions/awayextensionsc4d/awayextensionsc4dversion.xml")
     try:
         response = urllib2.urlopen(req)
     except:
