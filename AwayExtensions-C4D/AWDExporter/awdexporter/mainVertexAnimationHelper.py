@@ -14,7 +14,7 @@ def setNewtracks(curCurve,curObj,newObj,vertexAnimationTag,doc):
         maxFrame=vertexAnimationTag[1020]
         
     #print "Start Exporting Animation Range = "+str(minFrame)+"  -  "+str(maxFrame)
-    
+    firstCurve=None
     keyFrameStyle=vertexAnimationTag[1054]   
     curFrame=minFrame                                                                                           # set the first frame to be the current frame
     frameDurations=[]                                                                                             # list to store all frame-durations
@@ -122,10 +122,8 @@ def setMeshPosePosition(curObj,curTime, doCopy,curTrack,newObj,doc):
     if doCopy==True:
         doc.SetActiveObject(curObj,c4d.SELECTION_NEW)
         c4d.CallCommand(12233)
-        curObj=curObj.GetNext()        
-        if curObj.GetType()!=c4d.Opolygon:
-            extraRemove=curObj
-            curObj=curObj.GetDown()   
+        stateObj=curObj.GetNext()        
+        curObj=getPolyObject(stateObj)
                 
     newPositions=getPositions(curObj,doc) 
     thisCurve=curTrack.GetCurve()            
@@ -135,9 +133,7 @@ def setMeshPosePosition(curObj,curTime, doCopy,curTrack,newObj,doc):
     newObj.Message(c4d.MSG_UPDATE)
     curTrack.FillKey(doc,newObj,key)
     if doCopy==True:
-        curObj.Remove()
-        if extraRemove is not None:
-            extraRemove.Remove()
+        stateObj.Remove()
     return newPositions
     
 # saves the skeleton-joint-matricies while playing trough timeline - called by "buildSkeletonPose()"
@@ -147,18 +143,28 @@ def getPositions(curObj,doc):
     newList=curObj.GetAllPoints()
     return newList
 
+def getPolyObject(thisObj):
+    if thisObj.GetType()==c4d.Opolygon:
+        return thisObj.GetClone()
+    for child in thisObj.GetChildren():
+        returneFromChild=getPolyObject(child) 
+        if returneFromChild is not None:
+            return returneFromChild
+    return None
+    
+
 def createAnimationObject(curObj, animTag,newName,doc):
     
     #newObj=curObj.GetClone()
-    #doc.InsertObject(newObj,curObj.GetUp(),curObj)
+    #doc.InsertObject(newObj)
     doc.SetActiveObject(curObj,c4d.SELECTION_NEW)
-    c4d.CallCommand(12233)
-    newObj=curObj.GetNext() 
-    extraRemove=None       
-    if newObj.GetType()!=c4d.Opolygon:
-        extraRemove=newObj
-        newObj=newObj.GetDown() 
-        doc.InsertObject(newObj,curObj.GetUp(),curObj)
+    c4d.CallCommand(12233)# perform "current state to object" on the selected object
+    # search the newly created object
+    stateObj=curObj.GetNext() 
+    newObj=getPolyObject(stateObj)
+    stateObj.Remove()
+    doc.InsertObject(newObj,curObj.GetUp(),curObj)
+        
     cleanTracks(newObj)
     id = c4d.DescID(c4d.DescLevel(c4d.CTpla, c4d.CTpla, 0))
     plaTrack = c4d.CTrack(newObj, id)
@@ -171,8 +177,6 @@ def createAnimationObject(curObj, animTag,newName,doc):
     newAnimationTag[1011]=newName
     animTag[1010]=False
     newObj.SetName(newName)
-    if extraRemove is not None:
-        extraRemove.Remove()
     c4d.EventAdd()
     
 def cleanTracks(object):

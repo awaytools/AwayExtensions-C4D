@@ -80,10 +80,6 @@ class AWDVertexAnimationTagXpression(plugins.TagData):
                     errorString="VertexAnimation cannot target itself!"
                 if errorString!="":
                     c4d.gui.MessageDialog(errorString)
-            if bc.GetReal(REAL_KEYFRAME)<bc.GetReal(REAL_FIRSTFRAME):
-                bc.SetReal(REAL_KEYFRAME,bc.GetReal(REAL_FIRSTFRAME))
-            if bc.GetReal(REAL_KEYFRAME)>bc.GetReal(REAL_LASTFRAME):
-                bc.SetReal(REAL_KEYFRAME,bc.GetReal(REAL_LASTFRAME))
             if self.curMode!=node.GetDataInstance().GetLong(COMBO_ALLFRAMES):
                 self.curMode=node.GetDataInstance().GetLong(COMBO_ALLFRAMES);
             if self.curRange==node.GetDataInstance().GetLong(COMBO_RANGE):
@@ -121,7 +117,12 @@ class AWDVertexAnimationTagXpression(plugins.TagData):
                     bc.SetReal(REAL_FIRSTFRAME ,int(self.firstFrame))
                     bc.SetReal(REAL_LASTFRAME ,int(self.lastFrame))
                     
-                node.SetData(bc) 
+            if int( bc.GetLong(COMBO_RANGE))!=COMBO_RANGE_GLOBAL:
+                if bc.GetReal(REAL_KEYFRAME)<bc.GetReal(REAL_FIRSTFRAME):
+                    bc.SetReal(REAL_KEYFRAME,bc.GetReal(REAL_FIRSTFRAME))
+                if bc.GetReal(REAL_KEYFRAME)>bc.GetReal(REAL_LASTFRAME):
+                    bc.SetReal(REAL_KEYFRAME,bc.GetReal(REAL_LASTFRAME))
+            #node.SetData(bc) 
                     
                 
             #print "Jes2 "+str(data["id"])

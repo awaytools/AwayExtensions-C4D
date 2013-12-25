@@ -31,8 +31,6 @@ class AWDAnimatorXpression(plugins.TagData):
     def Init(self,node):
         bc = node.GetDataInstance()# Reads the tag's container and opens a copy.
         bc.SetBool(ANIMATOR_EXPORT,True)
-        bc.SetBool(CBOX_AUTOPLAY,True)
-        bc.SetLong(REAL_STARTTIME ,int(0))
         node.SetData(bc)
         return True
 
@@ -78,7 +76,6 @@ class AWDAnimatorXpression(plugins.TagData):
                     c4d.gui.MessageDialog(errorString)
                     
                 
-            #print "Jes2 "+str(data["id"])
         #check if the Message was send from a Description-Dialog (such as this Tag)
         #print type
                     

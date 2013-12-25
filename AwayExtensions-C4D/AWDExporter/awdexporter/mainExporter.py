@@ -17,9 +17,12 @@ from awdexporter import mainVertexAnimationReader
 # called by "maindialog.Command()" to start the export-process
 def startExport(mainDialog,doc):   
     exportData=classMainScene.mainScene(doc,mainDialog)         # create a new "mainScene". this class will store all the data collected for export
-        
+     
+    # not needed anymor ?
     #exportData.doc.SetMode(11)#set EditMode to 11 (Model-Mode) - otherwise the triangulate method will only affect the selected polygons!     
     objectsToExport=exportData.doc.GetObjects()                             # get a list of all objects in the scene
+    
+    # check if there is anything to export
     if len(objectsToExport)==0:                                             # if no object is in the scene:
         if exportData.unusedMats==False:                                        # if no unsued materials should be exported:
             newError=classesHelper.AWDerrorObject(ids.ERRORMESSAGE2,None)           # create a new errorObject
@@ -30,20 +33,26 @@ def startExport(mainDialog,doc):
             if len(exportData.allc4dMaterials)==0:                                  # if no material was found:
                 newError=classesHelper.AWDerrorObject(ids.ERRORMESSAGE2,None)           # create a new errorObject
                 exportData.AWDerrorObjects.append(newError)                             # append the new errorObject to the errorlist, so it will be displayed at the end of export process 
-                return exportData                                                       # return from function
-    
+                return exportData                                                       # return from function    
     exportData.objList=objectsToExport
     
+    # calculate progressbar
     exportData.allStatusLength=2    # used to calculate the progress-bar
     exportData.allStatus=1                                      # used to calculate the progress-bar
     exportData.status=1   
+    
+    # open save as dialog
     datei=c4d.storage.SaveDialog(c4d.FILESELECTTYPE_ANYTHING, "save as *.AWD", "awd")
     if datei is None:     
         newError=classesHelper.AWDerrorObject(ids.ERRORMESSAGE2,None)           # create a new errorObject
         exportData.AWDerrorObjects.append(newError)                             # append the new errorObject to the errorlist, so it will be displayed at the end of export process 
         return None
-    maindialogHelpers.enableAll(mainDialog,False)               # disable the all GUI-elements, so the user can not change anything while exporting 
+        
+    # disable the all GUI-elements, so the user can not change anything while exporting  
+    maindialogHelpers.enableAll(mainDialog,False)              
     exportData.datei=datei
+    
+    
     # if this is executed, we know there is something to export!
     
     # create the MetaDataBlock

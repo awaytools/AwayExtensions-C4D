@@ -473,6 +473,7 @@ class TextureBlock(BaseBlock):
         self.saveTextureProps=[]
         self.saveTextureAtts=[]
         self.saveTextureData=None
+        self.isOK=False
         
     def writeBinary(self,exportData):
         baseBlockBytes=super(TextureBlock, self).writeBinary(exportData)

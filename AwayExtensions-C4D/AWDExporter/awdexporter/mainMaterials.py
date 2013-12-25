@@ -12,54 +12,71 @@ def createMaterial(newAWDBlock,exportData):
     
     material=newAWDBlock.mat
     newAWDBlock.tagForExport=True 
+    if material[c4d.MATERIAL_USE_TRANSPARENCY]==True:
+        newAWDBlock.matAlpha=1.0-material[c4d.MATERIAL_TRANSPARENCY_BRIGHTNESS]
+        newAWDBlock.saveMatProps.append(10)   
     if material[c4d.MATERIAL_USE_COLOR]==True:
         colorVec=material[c4d.MATERIAL_COLOR_COLOR]
         newAWDBlock.matColor=[colorVec.z*255,colorVec.y*255,colorVec.x*255,0]
-        newAWDBlock.saveMatProps.append(1)
-        if material[c4d.MATERIAL_USE_TRANSPARENCY]==True:
-            newAWDBlock.matAlpha=1.0-material[c4d.MATERIAL_TRANSPARENCY_BRIGHTNESS]
-            newAWDBlock.saveMatProps.append(10)                
+        newAWDBlock.saveMatProps.append(1)             
         if(material[c4d.MATERIAL_COLOR_SHADER]):
-            createSingleTextureBlock(exportData,str(material[c4d.MATERIAL_COLOR_SHADER][c4d.BITMAPSHADER_FILENAME]))
-            colorTexBlock=exportData.texturePathToAWDBlocksDic.get(str(material[c4d.MATERIAL_COLOR_SHADER][c4d.BITMAPSHADER_FILENAME]),None)
-            if colorTexBlock is not None:
-                newAWDBlock.saveMatType=2
-                newAWDBlock.saveMatProps.append(2)
-                newAWDBlock.saveColorTextureID=colorTexBlock.blockID
-        if(material[c4d.MATERIAL_USE_NORMAL]):            
-            if(material[c4d.MATERIAL_NORMAL_SHADER]):
+            if material[c4d.MATERIAL_COLOR_SHADER].GetType() == c4d.Xbitmap:
+                createSingleTextureBlock(exportData,str(material[c4d.MATERIAL_COLOR_SHADER][c4d.BITMAPSHADER_FILENAME]))
+                colorTexBlock=exportData.texturePathToAWDBlocksDic.get(str(material[c4d.MATERIAL_COLOR_SHADER][c4d.BITMAPSHADER_FILENAME]),None)
+                if colorTexBlock is not None:
+                    if colorTexBlock.isOK:
+                        newAWDBlock.saveMatType=2
+                        newAWDBlock.saveMatProps.append(2)
+                        newAWDBlock.saveColorTextureID=colorTexBlock.blockID
+            else:
+                print "only supported shaders are bitmapshader!"
+                #exportData.AWDwarningObjects.append("
+    if(material[c4d.MATERIAL_USE_NORMAL]):            
+        if(material[c4d.MATERIAL_NORMAL_SHADER]):
+            if material[c4d.MATERIAL_NORMAL_SHADER].GetType() == c4d.Xbitmap:
                 createSingleTextureBlock(exportData,str(material[c4d.MATERIAL_NORMAL_SHADER][c4d.BITMAPSHADER_FILENAME]))
                 newTexBlock=exportData.texturePathToAWDBlocksDic.get(str(material[c4d.MATERIAL_NORMAL_SHADER][c4d.BITMAPSHADER_FILENAME]),None)
                 if newTexBlock is not None:
-                    newTexBlock.tagForExport=True
-                    newAWDBlock.saveMatProps.append(3)
-                    newAWDBlock.saveNormalTextureID=newTexBlock.blockID          
-        if(material[c4d.MATERIAL_USE_DIFFUSION]): # for now  use the diffuse tex as specularMap       
-            if(material[c4d.MATERIAL_DIFFUSION_SHADER]):
+                    if newTexBlock.isOK:
+                        newTexBlock.tagForExport=True
+                        newAWDBlock.saveMatProps.append(3)
+                        newAWDBlock.saveNormalTextureID=newTexBlock.blockID      
+            else:
+                print "only supported shaders are bitmapshader!"    
+    if(material[c4d.MATERIAL_USE_DIFFUSION]): # for now  use the diffuse tex as specularMap       
+        if(material[c4d.MATERIAL_DIFFUSION_SHADER]):
+            if material[c4d.MATERIAL_DIFFUSION_SHADER].GetType() == c4d.Xbitmap:
                 createSingleTextureBlock(exportData,str(material[c4d.MATERIAL_DIFFUSION_SHADER][c4d.BITMAPSHADER_FILENAME]))
                 newTexBlock=exportData.texturePathToAWDBlocksDic.get(str(material[c4d.MATERIAL_DIFFUSION_SHADER][c4d.BITMAPSHADER_FILENAME]),None)
                 newTexBlock.tagForExport=True 
                 if newTexBlock is not None:
-                    newTexBlock.tagForExport=True
-                    newAWDBlock.saveMatProps.append(21)
-                    newAWDBlock.saveSpecTextureID=newTexBlock.blockID  
-        if(material[c4d.MATERIAL_USE_SPECULARCOLOR]):            
-            if(material[c4d.MATERIAL_SPECULAR_SHADER]):
+                    if newTexBlock.isOK:
+                        newTexBlock.tagForExport=True
+                        newAWDBlock.saveMatProps.append(21)
+                        newAWDBlock.saveSpecTextureID=newTexBlock.blockID  
+            else:
+                print "only supported shaders are bitmapshader!"
+    if(material[c4d.MATERIAL_USE_SPECULARCOLOR]):            
+        if(material[c4d.MATERIAL_SPECULAR_SHADER]):
+            if material[c4d.MATERIAL_SPECULAR_SHADER].GetType() == c4d.Xbitmap:
                 createSingleTextureBlock(exportData,str(material[c4d.MATERIAL_SPECULAR_SHADER][c4d.BITMAPSHADER_FILENAME]))
                 newTexBlock=exportData.texturePathToAWDBlocksDic.get(str(material[c4d.MATERIAL_SPECULAR_SHADER][c4d.BITMAPSHADER_FILENAME]),None)
                 newTexBlock.tagForExport=True
                 if newTexBlock is not None:
-                    newTexBlock.tagForExport=True
-                    newAWDBlock.saveMatProps.append(17)
-                    newAWDBlock.saveAmbientTextureID=newTexBlock.blockID  
+                    if newTexBlock.isOK:
+                        newTexBlock.tagForExport=True
+                        newAWDBlock.saveMatProps.append(17)
+                        newAWDBlock.saveAmbientTextureID=newTexBlock.blockID  
+            else:
+                print "only supported shaders are bitmapshader!"
                                 
               
-        if(material[c4d.MATERIAL_USE_FOG]):  
-            pass
-        if(material[c4d.MATERIAL_USE_SPECULAR]):  
-            pass
-        if(material[c4d.MATERIAL_USE_GLOW]):
-            pass
+    if(material[c4d.MATERIAL_USE_FOG]):  
+        pass# add fog-method
+    if(material[c4d.MATERIAL_USE_SPECULAR]):  
+        pass
+    if(material[c4d.MATERIAL_USE_GLOW]):
+        pass
         #print "material build: awdBlockid= "+str(material[c4d.MATERIAL_TRANSPARENCY_BRIGHTNESS])
 
 def createSingleTextureBlock(exportData,texturePath):
@@ -81,6 +98,7 @@ def createSingleTextureBlock(exportData,texturePath):
         filenamecount=0 
         newAWDBlock.saveLookUpName=""
         newAWDBlock.tagForExport=True
+        newAWDBlock.isOK=False
         while filenamecount<(len(extensionAr)-1):
             newAWDBlock.saveLookUpName+=extensionAr[filenamecount]
             filenamecount+=1
@@ -164,19 +182,27 @@ def createSingleTextureBlock(exportData,texturePath):
                     newAWDWrapperBlock.tagForExport=True
                     newAWDWrapperBlock.data=newAWDBlock
                     
+                newAWDBlock.isOK=True
                 if saveResult==c4d.IMAGERESULT_NOTEXISTING:
+                    newAWDBlock.isOK=False
                     print "ImageSave NOTEXISTING"
                 if saveResult==c4d.IMAGERESULT_WRONGTYPE:
+                    newAWDBlock.isOK=False
                     print "ImageSave WRONGTYPE"
                 if saveResult==c4d.IMAGERESULT_OUTOFMEMORY:
+                    newAWDBlock.isOK=False
                     print "ImageSave OUTOFMEMORY"
                 if saveResult==c4d.IMAGERESULT_FILEERROR:
+                    newAWDBlock.isOK=False
                     print "ImageSave FILEERROR"
                 if saveResult==c4d.IMAGERESULT_FILESTRUCTURE:
+                    newAWDBlock.isOK=False
                     print "ImageSave FILESTRUCTURE"
                 if saveResult==c4d.IMAGERESULT_MISC_ERROR:
+                    newAWDBlock.isOK=False
                     print "ImageSave MISC_ERROR"
                 if saveResult==c4d.IMAGERESULT_PARAM_ERROR:
+                    newAWDBlock.isOK=False
                     print "ImageSave PARAM_ERROR"
                 #f.close()
 

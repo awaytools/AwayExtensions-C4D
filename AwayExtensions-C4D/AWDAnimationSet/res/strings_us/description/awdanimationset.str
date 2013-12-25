@@ -1,9 +1,9 @@
 STRINGTABLE AWDAnimationSet
 {
-    AWDVertexAnimationTag    "AWDVertexAnimationTag";
+    AWDVertexAnimationTag    "AWD Animation Set";
 
     AWDSKELETON_EXPORT         "Exportieren";
-    AWDSKELETON_NAME           "Vertex Animation Name";
+    AWDSKELETON_NAME           "Animation Set";
     COMBO_RANGE_DOC         "Document";
     COMBO_RANGE_PREVIEW     "Preview";
     COMBO_RANGE_CUSTOM      "Custom";
