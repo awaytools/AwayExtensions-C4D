@@ -1,2 +1,2 @@
 <?xml version="1.0" ?>
-<AWDC4DVERSION Major="0" Message="several fixes for vertexAnimation" Minor="9" Revision="4"/>
+<AWDC4DVERSION Major="0" Message="fix export of multiple materials per mesh + add support for normal-tag export" Minor="9" Revision="5"/>

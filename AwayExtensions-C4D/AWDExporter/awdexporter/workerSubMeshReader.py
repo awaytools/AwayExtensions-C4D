@@ -261,6 +261,7 @@ def collectSubmeshData(meshBlock,exportData,workerthreat):
     allSubMeshCount=len(meshBlock.saveSubMeshes) # the length of all submeshes, needed for looping through all submeshes, to check which of it should get the current polygon  applied
     exportData.useInsteadSubMeshDic = {} # dictionary to translate submeshes that have reached their ressourcelimits to new created submeshes
     usePhong=False  # if true, the object has a phong tag applied, and the phong shading will be considered (shared verticles)
+    useNormalTag=False
     usePhongAngle=False # if true a maximal phongangle is set in the phongTag, and it will be considered (shared verticles)
     useEdgeBreaks=False # if true a edgeBreaks are set in the phongTag, and it will be considered (shared verticles)
     edgebreaks=None # the edgebreaks
@@ -284,15 +285,21 @@ def collectSubmeshData(meshBlock,exportData,workerthreat):
             frameCnt+=1
             
             
-            
-    phongTag=meshBlock.sceneObject.GetTag(c4d.Tphong)
-    if phongTag is not None:
-        usePhong=True
-        usePhongAngle=phongTag[c4d.PHONGTAG_PHONG_ANGLELIMIT]
-        useEdgeBreaks=phongTag[c4d.PHONGTAG_PHONG_USEEDGES]
-        phoneAngle=phongTag[c4d.PHONGTAG_PHONG_ANGLE]
-        if useEdgeBreaks==True:
-            edgebreaks=meshBlock.sceneObject.GetPhongBreak()
+    normalTag=meshBlock.sceneObject.GetTag(c4d.Tnormal)
+    if normalTag is not None:
+        useNormalTag=True
+        usePhongAngle=True
+        phoneAngle=0
+    
+    else:       
+        phongTag=meshBlock.sceneObject.GetTag(c4d.Tphong)
+        if phongTag is not None:
+            usePhong=True
+            usePhongAngle=phongTag[c4d.PHONGTAG_PHONG_ANGLELIMIT]
+            useEdgeBreaks=phongTag[c4d.PHONGTAG_PHONG_USEEDGES]
+            phoneAngle=phongTag[c4d.PHONGTAG_PHONG_ANGLE]
+            if useEdgeBreaks==True:
+                edgebreaks=meshBlock.sceneObject.GetPhongBreak()
         
     allOldPoints=meshBlock.sceneObject.GetAllPoints()
     meshBlock.pointsUsed=[]
@@ -329,13 +336,13 @@ def collectSubmeshData(meshBlock,exportData,workerthreat):
                    
         normala=normalb=normalc=normald=None             
                             
-        if usePhong==True: # if the phongshading should be considered:
-        
-            normalf=None # this will hold the normalVector of the Polygon
-            if usePhongAngle==True: # if the PhongAngle should be considered, we calulate the normalVector (otherwise the normalVector will stay None)
-                edge1=allOldPoints[oldpoints.a].__sub__(allOldPoints[oldpoints.c])
-                edge2=allOldPoints[oldpoints.b].__sub__(allOldPoints[oldpoints.d])
-                normalf=edge1.Cross(edge2)
+        if usePhong or useNormalTag: # if the phongshading should be considered:
+            if usePhong:
+                normalf=None # this will hold the normalVector of the Polygon
+                if usePhongAngle==True: # if the PhongAngle should be considered, we calulate the normalVector (otherwise the normalVector will stay None)
+                    edge1=allOldPoints[oldpoints.a].__sub__(allOldPoints[oldpoints.c])
+                    edge2=allOldPoints[oldpoints.b].__sub__(allOldPoints[oldpoints.d])
+                    normalf=edge1.Cross(edge2)
                 
             # get the normalVector of each Point
             normala=normalData[normalCounter]
@@ -386,14 +393,20 @@ def collectSubmeshData(meshBlock,exportData,workerthreat):
         while subcount < allSubMeshCount:# loop trough all SubMeshes
             if meshBlock.saveSubMeshes[subcount].selectionIndexe[faceIndex]==1:  # if the polygon is selected by this submesh, the polygon will be insterted into this submesh
                 subcount=checkForRessourceLimits(exportData,meshBlock,subcount,faceIndex,faceStyle,meshBlock.saveSubMeshes[subcount],animations) # check if this submesh has allready reached its limits. if it allready has, the index of the submesh to use instead is returned
-                if usePhong==True:    # if phongshading should be considered, execute the "buildSharedPoint()" for each of the points of the polygon
+                if usePhong:    # if phongshading should be considered, execute the "buildSharedPoint()" for each of the points of the polygon
                     buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.a],uva,meshBlock.saveSubMeshes[subcount],oldpoints.a,normala,normalf,phoneAngle,usePhongAngle,isEdgeBreakA,animations,subcount)
                     buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.b],uvb,meshBlock.saveSubMeshes[subcount],oldpoints.b,normalb,normalf,phoneAngle,usePhongAngle,isEdgeBreakB,animations,subcount)
                     buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.c],uvc,meshBlock.saveSubMeshes[subcount],oldpoints.c,normalc,normalf,phoneAngle,usePhongAngle,isEdgeBreakC,animations,subcount)
                     if str(faceStyle)=="quad":
                         buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.d],uvd,meshBlock.saveSubMeshes[subcount],oldpoints.d,normald,normalf,phoneAngle,usePhongAngle,isEdgeBreakD,animations,subcount)
+                elif useNormalTag:    # if the normal tag should be considered, execute the "buildSharedPoint()" for each of the points of the polygon
+                    buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.a],uva,meshBlock.saveSubMeshes[subcount],oldpoints.a,normala,normala,phoneAngle,usePhongAngle,isEdgeBreakA,animations,subcount)
+                    buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.b],uvb,meshBlock.saveSubMeshes[subcount],oldpoints.b,normalb,normalb,phoneAngle,usePhongAngle,isEdgeBreakB,animations,subcount)
+                    buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.c],uvc,meshBlock.saveSubMeshes[subcount],oldpoints.c,normalc,normalc,phoneAngle,usePhongAngle,isEdgeBreakC,animations,subcount)
+                    if str(faceStyle)=="quad":
+                        buildSharedPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,allOldPoints[oldpoints.d],uvd,meshBlock.saveSubMeshes[subcount],oldpoints.d,normald,normald,phoneAngle,usePhongAngle,isEdgeBreakD,animations,subcount)
                 
-                if usePhong==False: # if phongshading should not be considered, execute the "buildPoint()" for each of the points of the polygon
+                else: # if phongshading should not be considered, execute the "buildPoint()" for each of the points of the polygon
                     buildPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,meshBlock.saveSubMeshes[subcount],allOldPoints[oldpoints.a],oldpoints.a,uva,None,animations,subcount)
                     buildPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,meshBlock.saveSubMeshes[subcount],allOldPoints[oldpoints.b],oldpoints.b,uvb,None,animations,subcount)
                     buildPoint(exportData,faceStyle,meshBlock,meshBlock.sceneObject,meshBlock.saveSubMeshes[subcount],allOldPoints[oldpoints.c],oldpoints.c,uvc,None,animations,subcount)
@@ -435,7 +448,7 @@ def checkForRessourceLimits(exportData,meshBlock,subcount,faceIndex,faceStyle,cu
             #anim.frameSubMeshStreams.append(newPointsList)
         
         for instanceBlock in meshBlock.sceneBlocks: # for each instance that uses this Geiometry we need to append one more Material for this new subgeometry
-            instanceBlock.saveMaterials.append(instanceBlock.saveMaterials[subcount])
+            instanceBlock.data.saveMaterials.append(instanceBlock.data.saveMaterials[subcount])
         exportData.useInsteadSubMeshDic[str(subcount)]=len(meshBlock.saveSubMeshes) # make a item in the dictionary to tranlate the origional submeshes to this addional created one       
         meshBlock.saveSubMeshes.append(newSubMesh) # append the new submesh to the geometryBlock
         return (len(meshBlock.saveSubMeshes)-1) # return the index to the new Submesh, so it will be used
